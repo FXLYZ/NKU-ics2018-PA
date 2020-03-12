@@ -132,22 +132,33 @@ static int cmd_info(char *args){
 }
 
 static int cmd_x(char *args){
-	int nLen=0;
-	vaddr_t addr;
-	int nRet=sscanf(args,"%d 0x%x",&nLen,&addr);
-        if(nRet<=0){
-               printf("args error in cmd_si\n");
-               return 0;
-        }
-	printf("Memory:");
-	for(int i=0;i<nLen;i++){
-		if(i%4==0)
-			printf("\n0x%x:  0x%02x",addr+i,vaddr_read(addr+i,1));
-		else
-			printf("   0x%02x",vaddr_read(addr+i,1));
-	}
-	printf("\n");
-	return 0;
+    int nLen = 0;
+    bool success;
+    int j; for (j = 0; args[j] != ' '; j++);
+    char* e = (char*)malloc(strlen(args + j + 1));  // expression
+
+    int nRet = sscanf(args, "%d %s", &nLen, e);
+    if (nRet <= 0) {
+        printf("args error in cmd_x\n");
+        return 0;
+    }
+
+    vaddr_t addr = expr(e, &success);
+    if (success == false) {
+        printf("error in expr()\n");
+        return 0;
+    }
+
+    printf("Memory from %d(0x%x): ", addr, addr);
+    int i;
+    for (i = 0; i < nLen; i++) {
+        if (i % 4 == 0)
+            printf("\n0x%x:  0x%02x", addr + i, vaddr_read(addr + i, 1));
+        else
+            printf("  0x%02x", vaddr_read(addr + i, 1));
+    }
+    printf("\n");
+    return 0;
 }
 
 static int cmd_p(char *args){
