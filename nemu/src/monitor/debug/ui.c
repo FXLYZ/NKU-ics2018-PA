@@ -41,6 +41,7 @@ static int cmd_help(char *args);
 static int cmd_si(char *args);
 static int cmd_info(char *args);
 static int cmd_x(char *args);
+static int cmd_p(char *args);
 
 
 static struct {
@@ -54,7 +55,7 @@ static struct {
   {"si","args:[N];execute[N] instructions step by step",cmd_si},
   {"info","args:r/w;print information about registers or watchpoint",cmd_info},
   {"x","x [N] [EXPR]:scan the memory",cmd_x},
-  //{"p","expr",cmd_p},
+  {"p","expr",cmd_p},
   //{"d","delete the watchpoint",cmd_d},
 
   /* TODO: Add more commands */
@@ -122,6 +123,16 @@ static int cmd_x(char *args){
 			printf("   0x%02x",vaddr_read(addr+i,1));
 	}
 	printf("\n");
+	return 0;
+}
+
+static int cmd_p(char *args){
+	bool success;
+	int res=expr(args,&success);
+	if(success==false)
+		printf("error in expr()\n");
+	else
+		printf("the value of expr is:%d\n",res);
 	return 0;
 }
 
