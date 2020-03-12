@@ -42,6 +42,25 @@ static int cmd_si(char *args);
 static int cmd_info(char *args);
 static int cmd_x(char *args);
 static int cmd_p(char *args);
+static int cmd_w(char *args){
+   new_wp(args);
+   return 0;
+}
+
+static int cmd_d(char* args){
+   int num=0;
+   int nret=sscanf(args,"%d",&num);
+   if(nret<=0){
+       printf("args error in cmd_si\n");
+       return 0;
+   }
+   int r=free_wp(num);
+   if(r==false)
+       printf("error: no watchpoint %d\n",num);
+   else
+       printf("success delete watchpoint %d\n",num);
+   return 0;
+}
 
 
 static struct {
@@ -56,7 +75,8 @@ static struct {
   {"info","args:r/w;print information about registers or watchpoint",cmd_info},
   {"x","x [N] [EXPR]:scan the memory",cmd_x},
   {"p","expr",cmd_p},
-  //{"d","delete the watchpoint",cmd_d},
+  {"d","delete the watchpoint",cmd_d},
+  {"watch","set watchpoint",cmd_w},
 
   /* TODO: Add more commands */
 };
@@ -103,6 +123,10 @@ static int cmd_info(char *args){
 			printf("%s   0x%x\n",regsl[i],reg_b(i));
 		return 0;
       }
+      if(s=='w'){
+           print_wp();
+           return 0;
+      } 
       printf("args error in cmd_info\n");
       return 0;
 }
@@ -135,6 +159,7 @@ static int cmd_p(char *args){
 		printf("the value of expr is:%d\n",res);
 	return 0;
 }
+
 
 static int cmd_help(char *args) {
   /* extract the first argument */
