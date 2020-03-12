@@ -151,7 +151,7 @@ static int cmd_x(char *args){
 
     printf("Memory from %d(0x%x): ", addr, addr);
     int i;
-    for (i = 0; i < nLen*4; i++) {
+    for (i = 0; i < nLen; i++) {
         if (i % 4 == 0)
             printf("\n0x%x:  0x%02x", addr + i, vaddr_read(addr + i, 1));
         else
