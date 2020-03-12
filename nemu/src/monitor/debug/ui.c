@@ -76,7 +76,7 @@ static struct {
   {"x","x [N] [EXPR]:scan the memory",cmd_x},
   {"p","expr",cmd_p},
   {"d","delete the watchpoint",cmd_d},
-  {"watch","set watchpoint",cmd_w},
+  {"w","set watchpoint",cmd_w},
 
   /* TODO: Add more commands */
 };
