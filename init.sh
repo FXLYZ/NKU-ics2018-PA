@@ -42,3 +42,6 @@ case $input in
     echo "Invalid input..."
     ;;
 esac
+export NEMU_HOME=/home/cengzhitao/桌面/ics2018/nemu
+export AM_HOME=/home/cengzhitao/桌面/ics2018/nexus-am
+export NAVY_HOME=/home/cengzhitao/桌面/ics2018/navy-apps
