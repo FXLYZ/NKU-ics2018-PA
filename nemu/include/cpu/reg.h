@@ -13,6 +13,7 @@ enum { R_AL, R_CL, R_DL, R_BL, R_AH, R_CH, R_DH, R_BH };
  * cpu.gpr[1]._8[1], we will get the 'ch' register. Hint: Use `union'.
  * For more details about the register encoding scheme, see i386 manual.
  */
+   
 
 typedef struct {
   /* Do NOT change the order of the GPRs' definitions. */
@@ -30,6 +31,19 @@ typedef struct {
     };
   };
   vaddr_t eip;
+
+  struct bs{
+    unsigned int CF:1;
+    unsigned int one:1;
+    unsigned int :4;
+    unsigned int ZF:1;
+    unsigned int SF:1;
+    unsigned int :1;
+    unsigned int IF:1;
+    unsigned int :1;
+    unsigned int OF:1;
+    unsigned int :20;
+  }eflags;
 
 } CPU_state;
 
