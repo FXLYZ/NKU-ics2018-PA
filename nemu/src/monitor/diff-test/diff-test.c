@@ -7,7 +7,6 @@
 #include "protocol.h"
 #include <stdlib.h>
 
-#define DIFF_TEST
 
 bool gdb_connect_qemu(void);
 bool gdb_memcpy_to_qemu(uint32_t, void *, int);
