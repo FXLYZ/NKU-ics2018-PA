@@ -7,6 +7,8 @@
 #include "protocol.h"
 #include <stdlib.h>
 
+#define DIFF_TEST
+
 bool gdb_connect_qemu(void);
 bool gdb_memcpy_to_qemu(uint32_t, void *, int);
 bool gdb_getregs(union gdb_regs *);
@@ -143,15 +145,36 @@ void difftest_step(uint32_t eip) {
     is_skip_qemu = false;
     return;
   }
-
+  //if(r.eax!=cpu.eax)
+  //   diff=true;
   gdb_si();
   gdb_getregs(&r);
 
   // TODO: Check the registers state with QEMU.
   // Set `diff` as `true` if they are not the same.
-  TODO();
-
+  //TODO();
+  if(r.eax!=cpu.eax)
+     diff=true;
+  if(r.ecx!=cpu.ecx)
+     diff=true;
+  if(r.edx!=cpu.edx)
+     diff=true;
+  if(r.ebx!=cpu.ebx)
+     diff=true;
+  if(r.esp!=cpu.esp)
+     diff=true;
+  if(r.ebp!=cpu.ebp)
+     diff=true;
+  if(r.esi!=cpu.esi)
+     diff=true;
+  if(r.edi!=cpu.edi)
+     diff=true;
   if (diff) {
-    nemu_state = NEMU_END;
+    //nemu_state = NEMU_END;
+    Log("different in general registers: when nemu.eip=0x%x",cpu.eip);
+  }
+  if(r.eip!=cpu.eip){
+    diff=true;
+    Log("different qemu.eip=0x%x ,and nemu.eip=0x%x ",r.eip,cpu.eip);
   }
 }
