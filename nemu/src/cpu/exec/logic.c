@@ -1,13 +1,21 @@
 #include "cpu/exec.h"
 
 make_EHelper(test) {
-  TODO();
-
+  //TODO();
+  rtl_and(&t2,&id_dest->val,&id_src->val);
+  rtl_update_ZFSF(&t2,id_dest->width);
+  rtl_set_CF(&tzero);
+  rtl_set_OF(&tzero);
   print_asm_template2(test);
 }
 
 make_EHelper(and) {
-  TODO();
+  //TODO();
+  rtl_and(&t2,&id_dest->val,&id_src->val);
+  operand_write(id_dest,&t2);
+  rtl_update_ZFSF(&t2,id_dest->width);
+  rtl_set_CF(&tzero);
+  rtl_set_OF(&tzero);
 
   print_asm_template2(and);
 }
@@ -24,28 +32,41 @@ make_EHelper(xor) {
 }
 
 make_EHelper(or) {
-  TODO();
+  //TODO();
+  rtl_or(&t2,&id_dest->val,&id_src->val);
+  operand_write(id_dest,&t2);
+  rtl_update_ZFSF(&t2,id_dest->width);
+  rtl_set_CF(&tzero);
+  rtl_set_OF(&tzero);
 
   print_asm_template2(or);
 }
 
 make_EHelper(sar) {
-  TODO();
+  //TODO();
   // unnecessary to update CF and OF in NEMU
-
+  rtl_sext(&t2,&id_dest->val,id_dest->width);
+  rtl_sar(&t2,&t2,&id_src->val);
+  rtl_update_ZFSF(&t2,id_dest->width);
   print_asm_template2(sar);
 }
 
 make_EHelper(shl) {
-  TODO();
+  //TODO();
   // unnecessary to update CF and OF in NEMU
+  rtl_shl(&t2,&id_dest->val,&id_src->val);
+  operand_write(id_dest,&t2);
+  rtl_update_ZFSF(&t2,id_dest->width);
 
   print_asm_template2(shl);
 }
 
 make_EHelper(shr) {
-  TODO();
+  //TODO();
   // unnecessary to update CF and OF in NEMU
+  rtl_shr(&t2,&id_dest->val,&id_src->val);
+  operand_write(id_dest,&t2);
+  rtl_update_ZFSF(&t2,id_dest->width);
 
   print_asm_template2(shr);
 }
@@ -59,7 +80,8 @@ make_EHelper(setcc) {
 }
 
 make_EHelper(not) {
-  TODO();
-
+  //TODO();
+  rtl_not(&id_dest->val);
+  operand_write(id_dest,&id_dest->val);
   print_asm_template1(not);
 }
