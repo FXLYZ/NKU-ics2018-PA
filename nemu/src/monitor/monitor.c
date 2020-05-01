@@ -75,6 +75,7 @@ static inline void load_img() {
   }
 
 #ifdef DIFF_TEST
+  //宏定义DIFF_TEST后执行代码 客户程序拷贝一份到qemu
   gdb_memcpy_to_qemu(ENTRY_START, guest_to_host(ENTRY_START), size);
 #endif
 }
@@ -83,10 +84,14 @@ static inline void restart() {
   /* Set the initial instruction pointer. */
   cpu.eip = ENTRY_START;
 
-  unsigned int origin=2;
-  memcpy(&cpu.eflags,&origin,sizeof(cpu.eflags));
-
+  //eflags 设置初值
+  cpu.eflags.val = 0x00000002;
+  //cs 设置初值
+  cpu.cs = 0x00000008;
+  //cr0 设置初值
+  cpu.cr0.val = 0x60000011;
 #ifdef DIFF_TEST
+  //设置到和nemu相同
   init_qemu_reg();
 #endif
 }

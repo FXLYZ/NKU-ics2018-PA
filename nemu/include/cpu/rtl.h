@@ -32,7 +32,7 @@ static inline void rtl_li(rtlreg_t* dest, uint32_t imm) {
   }
 
 
-make_rtl_arith_logic(add)
+make_rtl_arith_logic(add) //rtl_add(d,s1,s2) rtl_addi(d,s1,s2)
 make_rtl_arith_logic(sub)
 make_rtl_arith_logic(and)
 make_rtl_arith_logic(or)
@@ -111,14 +111,13 @@ static inline void rtl_sr(int r, int width, const rtlreg_t* src1) {
   }
 }
 
+// 预处理时做好，不受词法分析约束
 #define make_rtl_setget_eflags(f) \
   static inline void concat(rtl_set_, f) (const rtlreg_t* src) { \
-    /*TODO();*/ \
-    cpu.eflags.f=*src;\
+    cpu.eflags.f = *src; \
   } \
   static inline void concat(rtl_get_, f) (rtlreg_t* dest) { \
-    /*TODO();*/  \
-    *dest=cpu.eflags.f;\
+    *dest = cpu.eflags.f; \
   }
 
 make_rtl_setget_eflags(CF)
@@ -128,93 +127,79 @@ make_rtl_setget_eflags(SF)
 
 static inline void rtl_mv(rtlreg_t* dest, const rtlreg_t *src1) {
   // dest <- src1
-  //TODO();
-  rtl_addi(dest,src1,0);
+  *dest = *src1;
 }
 
 static inline void rtl_not(rtlreg_t* dest) {
   // dest <- ~dest
-  //TODO();
-  rtl_xori(dest,dest,0xffffffff);
+  *dest = ~(*dest);
 }
+
 
 static inline void rtl_sext(rtlreg_t* dest, const rtlreg_t* src1, int width) {
   // dest <- signext(src1[(width * 8 - 1) .. 0])
-  //TODO();
-  if(width==4){
-      rtl_mv(dest,src1);
-  }
-  else{
-     assert(width==1||width==2);
-     rtl_shli(dest,src1,(4-width)*8);
-     rtl_sari(dest,dest,(4-width)*8);
-  }
+  // 实现符号扩展，先逻辑左移再算数右移
+  rtl_li(&t1,32-width*8);
+  rtl_shl(dest,src1,&t1);
+  rtl_sar(dest,dest,&t1);
 }
 
 static inline void rtl_push(const rtlreg_t* src1) {
   // esp <- esp - 4
-  // M[esp] <- src1
-  //TODO();
   rtl_subi(&cpu.esp,&cpu.esp,4);
+  // M[esp] <- src1
   rtl_sm(&cpu.esp,4,src1);
-
 }
 
 static inline void rtl_pop(rtlreg_t* dest) {
   // dest <- M[esp]
-  // esp <- esp + 4
-  //TODO();
   rtl_lm(dest,&cpu.esp,4);
+  // esp <- esp + 4
   rtl_addi(&cpu.esp,&cpu.esp,4);
 }
 
 static inline void rtl_eq0(rtlreg_t* dest, const rtlreg_t* src1) {
   // dest <- (src1 == 0 ? 1 : 0)
-  //TODO();
-  rtl_sltui(dest,src1,1);
+  *dest = *src1 == 0 ? 1 : 0;
 }
 
 static inline void rtl_eqi(rtlreg_t* dest, const rtlreg_t* src1, int imm) {
   // dest <- (src1 == imm ? 1 : 0)
-  //TODO();
-  rtl_xori(dest,src1,imm);
-  rtl_eq0(dest,dest);
+  *dest = *src1 == imm ? 1 : 0;
 }
 
 static inline void rtl_neq0(rtlreg_t* dest, const rtlreg_t* src1) {
   // dest <- (src1 != 0 ? 1 : 0)
-  //TODO();
-  rtl_eq0(dest,src1);
-  rtl_eq0(dest,dest);
+  *dest = *src1 != 0 ? 1 : 0;
 }
 
 static inline void rtl_msb(rtlreg_t* dest, const rtlreg_t* src1, int width) {
   // dest <- src1[width * 8 - 1]
-  //TODO();
+  // 返回最高有效位，即标志位
   rtl_shri(dest,src1,width*8-1);
-  rtl_andi(dest,dest,0x1);
 }
 
 static inline void rtl_update_ZF(const rtlreg_t* result, int width) {
   // eflags.ZF <- is_zero(result[width * 8 - 1 .. 0])
-  //TODO();
-  assert(result!=&t0);
-  rtl_andi(&t0,result,(0xfffffffu>>(4-width)*8));
-  rtl_eq0(&t0,&t0);
-  rtl_set_ZF(&t0);
+  // X 判断结果是否为零，即result的0到width*8-1位是否全0，实际上用不上width
+  // 惨重教训 用的上width
+  //rtl_eq0(&t1,result);
+  //rtl_set_ZF(&t1);
+  t1=(*result & (~0u >> ((4 - width) << 3)));
+  rtl_eq0(&t1,&t1);
+  rtl_set_ZF(&t1);
 }
 
 static inline void rtl_update_SF(const rtlreg_t* result, int width) {
   // eflags.SF <- is_sign(result[width * 8 - 1 .. 0])
-  //TODO();
-  assert(result!=&t0);
-  rtl_msb(&t0,result,width);
-  rtl_set_SF(&t0);
+  rtl_msb(&t1,result,width);
+  rtl_set_SF(&t1);
 }
 
 static inline void rtl_update_ZFSF(const rtlreg_t* result, int width) {
   rtl_update_ZF(result, width);
   rtl_update_SF(result, width);
 }
+
 
 #endif
