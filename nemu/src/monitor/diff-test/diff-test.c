@@ -168,12 +168,12 @@ void difftest_step(uint32_t eip) {
      diff=true;
   if(r.edi!=cpu.edi)
      diff=true;
-  if (diff) {
-    //nemu_state = NEMU_END;
-    Log("different in general registers: when nemu.eip=0x%x",cpu.eip);
-  }
   if(r.eip!=cpu.eip){
     diff=true;
     Log("different qemu.eip=0x%x ,and nemu.eip=0x%x ",r.eip,cpu.eip);
+  }
+  if (diff) {
+    Log("different in general registers: when nemu.eip=0x%x",cpu.eip);
+    nemu_state = NEMU_END;
   }
 }
