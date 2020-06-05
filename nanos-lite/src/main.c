@@ -2,7 +2,7 @@
 
 /* Uncomment these macros to enable corresponding functionality. */
 #define HAS_ASYE
-//#define HAS_PTE
+#define HAS_PTE
 
 void init_mm(void);
 void init_ramdisk(void);
@@ -25,7 +25,7 @@ int main() {
 
 #ifdef HAS_ASYE
   Log("Initializing interrupt/exception handler...");
-  //init_irq();
+  init_irq();
 #endif
 
   init_fs();
