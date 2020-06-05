@@ -4,17 +4,16 @@
 #include "common.h"
 
 typedef struct watchpoint {
-  int NO;
-  struct watchpoint *next;
-
-  /* TODO: Add more members if necessary */
-  char eexpr[100];
-  uint32_t init;
-
+    int NO;
+    struct watchpoint *next;
+    int oldValue;
+    char e[32];
+    int hitNum;
 } WP;
 
-WP* new_wp();
-void free_wp(int N);
-void show_wp();
-bool check_wp();
+bool new_wp(char *args);
+bool free_wp(int num);
+void print_wp();
+bool watch_wp();
+
 #endif

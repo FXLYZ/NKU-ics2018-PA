@@ -38,11 +38,18 @@ static inline make_DopHelper(SI) {
    *
    op->simm = ???
    */
-  //之前忘了符号扩展
-  //这里出现的问题时，临时寄存器和rtl_sext里重名了
-  t0 = instr_fetch(eip,op->width);
-  rtl_sext(&t0,&t0,op->width);
-  op->simm = t0;
+   
+  op->simm = instr_fetch(eip, op->width);
+  if (op->width == 1)
+  	op->simm = (int8_t)op->simm;
+  else if (op->width == 2)
+  	op->simm = (int16_t)op->simm;
+  else if (op->width == 4)
+  	op->simm = (int32_t)op->simm;
+  
+  /*t0 = instr_fetch(eip, op->width);
+  rtl_sext(&t1, &t0, op->width);
+  op->simm = t1;*/
 
   rtl_li(&op->val, op->simm);
 
@@ -306,6 +313,10 @@ make_DHelper(out_a2dx) {
 #ifdef DEBUG
   sprintf(id_dest->str, "(%%dx)");
 #endif
+}
+
+make_DHelper(lidt_a) {
+    decode_op_a(eip, id_dest, true);
 }
 
 void operand_write(Operand *op, rtlreg_t* src) {

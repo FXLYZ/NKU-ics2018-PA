@@ -66,40 +66,11 @@ void _switch(_Protect *p) {
 }
 
 void _map(_Protect *p, void *va, void *pa) {
-	PDE *pgdir = p->ptr;
-	PDE *pde = &pgdir[PDX(va)];
-	PTE *pgtab;
-	if (*pde & PTE_P) { //present
-		pgtab = (PTE *)PTE_ADDR(*pde);
-	} else {
-		//映射过程中发现需要申请新的页表
-		pgtab = (PTE *)palloc_f();
-		*pde = PTE_ADDR(pgtab) | PTE_P;
-	}
-	pgtab[PTX(va)] = PTE_ADDR(pa) | PTE_P;
 }
 
 void _unmap(_Protect *p, void *va) {
 }
 
 _RegSet *_umake(_Protect *p, _Area ustack, _Area kstack, void *entry, char *const argv[], char *const envp[]) {
-  //_umake将ustack底部初始化一个entry为返回地址的陷阱帧
-  uint32_t *ptr = ustack.end;
-  //navyapps程序入口函数_start的 栈帧，即8个通用寄存器
-  for (int i = 0; i < 8; i++) {
-	*ptr = 0x0; 
-  	 ptr--;
-  }
-  //陷阱帧，包括栈帧的8个通用寄存器
-  *ptr = 0x202; 	  ptr--; //eflags,即IF置1即可
-  *ptr = 0x8; 	          ptr--; //cs 为了diff test
-  *ptr = (uint32_t)entry; ptr--; //eip
-  *ptr = 0x0;             ptr--; //error code
-  *ptr = 0x81;            ptr--; //irq id
-  for (int i = 0; i < 8; i++) {
-	*ptr = 0x0;
-  	 ptr--;
-  }
-  ptr++;
-  return (_RegSet *)ptr; //将会记录到tf
+  return NULL;
 }

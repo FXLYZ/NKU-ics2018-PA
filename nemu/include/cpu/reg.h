@@ -2,7 +2,7 @@
 #define __REG_H__
 
 #include "common.h"
-#include "memory/mmu.h"
+
 enum { R_EAX, R_ECX, R_EDX, R_EBX, R_ESP, R_EBP, R_ESI, R_EDI };
 enum { R_AX, R_CX, R_DX, R_BX, R_SP, R_BP, R_SI, R_DI };
 enum { R_AL, R_CL, R_DL, R_BL, R_AH, R_CH, R_DH, R_BH };
@@ -30,46 +30,28 @@ typedef struct {
     };
   };
   vaddr_t eip;
+  // eflags reg
+  struct bs {
+      unsigned int CF:1;
+      unsigned int one:1;
+      unsigned int :4;
+      unsigned int ZF:1;
+      unsigned int SF:1;
 
-  union{
-      uint32_t val;//和下面的32bits占用同一片空间，整个eflags的值
-      struct{
-          uint32_t CF:1;
-          unsigned:5;
-          uint32_t ZF:1;
-          uint32_t SF:1;
-          unsigned:1;
-          uint32_t IF:1;
-          unsigned:1;
-          uint32_t OF:1;
-          unsigned:20;
-      }; //这个结构占用32bits
-  }eflags;//32bits寄存器
+      unsigned int :1;
+      unsigned int IF:1;
+      unsigned int :1;
+      unsigned int OF:1;
+      unsigned int :20;
+  } eflags;
 
-  struct{
-      uint32_t i_limit;  //IDT数组长度 实际为16位 为了方便
-      uint32_t i_base; //IDT数组基址
-  }idtr;
-  uint32_t cs;//实际16位 参照GDB remote protocol client
-
-  /*union{
-      uint32_t cr0;
-      struct{
-          uint32_t PE:1;
-          uint32_t MP:1;
-          uint32_t EM:1;
-          uint32_t TS:1;
-          uint32_t ET:1;
-          unsigned   :26;
-          uint32_t PG:1;
-      }; 
-  };
-  uint32_t cr3;*/
-  CR0 cr0;
-  CR3 cr3;
-
-  bool INTR;
-
+  // IDTR reg
+  struct IDTR {
+      uint32_t base;
+      uint32_t limit;
+  } idtr;
+  // CS
+  rtlreg_t cs;
 } CPU_state;
 
 extern CPU_state cpu;

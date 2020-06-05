@@ -3,8 +3,10 @@
 
 #define NR_WP 32
 
-static WP wp_pool[NR_WP];
+static WP wp_pool[NR_WP];  // watchpoint pool
 static WP *head, *free_;
+static int used_next;
+static WP *wptemp;
 
 void init_wp_pool() {
   int i;
@@ -16,86 +18,100 @@ void init_wp_pool() {
 
   head = NULL;
   free_ = wp_pool;
+  used_next = 0;
 }
 
-/* TODO: Implement the functionality of watchpoint */
-WP* new_wp(){
-    if(head == NULL){
-        head = free_;
-        free_=free_->next;
-        head->next = NULL;
-        return head;
+bool new_wp(char *args) {
+    if (free_ == NULL) {
+        printf("no wp left\n");
+        assert(0);
     }
-    else{
-        if(free_ == NULL) //没有空闲的了
-            assert(0);
-        WP* tmp = head;
-        while(tmp->next!=NULL){
-            tmp = tmp->next;
-        }
-        tmp->next = free_;
-        free_ = free_->next;
-        tmp = tmp->next;
-        tmp->next = NULL;
-        return tmp;
+    WP *result = free_;
+    free_ = free_->next;
+
+    result->NO = used_next++;
+    result->next = NULL;
+    strcpy(result->e, args);
+    result->hitNum = 0;
+
+    bool success;
+    result->oldValue = expr(result->e, &success);
+    if (success == false) {
+        printf("error in new_wp: expression fault!\n");
+        return false;
     }
+
+    wptemp = head;
+    if (wptemp == NULL) {
+        head = result;
+    } else {
+        while (wptemp->next != NULL)
+            wptemp = wptemp->next;
+        wptemp->next = result;
+    }
+    printf("success: set wp %d, oldValue=%d\n", result->NO, result->oldValue);
+    return true;
 }
-void free_wp(int N){
-    WP *wp=head;
-    while(wp!=NULL)
-    {
-        if(wp->NO == N)
-            break;
-        wp = wp->next;
+
+bool free_wp(int num) {
+    WP *thewp = NULL;
+    if (head == NULL) {
+        printf("no watchpoint now\n");
+        return false;
     }
-    if(wp == NULL)
-    {
-        printf("Fail to "); //fail to free wp
-        return;
-    }
-    if(head == wp)
+    if (head->NO == num) {
+        thewp = head;
         head = head->next;
-    else
-    {
-        WP* tmp = head;
-        while(tmp!=NULL)
-        {
-            if(tmp->next == wp){
-                tmp->next = wp->next;
+    } else {
+        wptemp = head;
+        while (wptemp != NULL && wptemp->next != NULL) {
+            if (wptemp->next->NO == num) {
+                thewp = wptemp->next;
+                wptemp->next = wptemp->next->next;
                 break;
             }
-            tmp = tmp->next;
-        }
-    }
-    wp->next = free_;
-    free_ = wp;
-}
-void show_wp(){
-    printf("Num\tWhat\n");
-    WP *tmp = head;
-    while(tmp!=NULL)
-    {
-        printf("%d\t%s\n",tmp->NO,tmp->eexpr);
-        tmp = tmp->next;
-    }
-}
-bool check_wp(){  //监视点里某个变动了，返回true
-    WP *tmp = head;
-    bool had_changed = false;
-    while(tmp!=NULL)
-    {
-        bool *success = false;
-        uint32_t new_val = expr(tmp->eexpr,success); 
-        if(new_val != tmp->init)
-        {
-            printf("Watchpoint %d: %s\n",tmp->NO,tmp->eexpr);
-            printf("Old value = 0x%08x\nNew value = 0x%08x\n",tmp->init,new_val);
-            tmp->init = new_val;//赋上新值
-            had_changed = true; //每一个监视点的变化都要输出
-        }
-        tmp = tmp->next;
-    }
-    if(had_changed)
+            wptemp = wptemp->next;
+        }//while
+    }//else
+    if (thewp != NULL) {
+        thewp->next = free_;
+        free_ = thewp;
         return true;
+    }
     return false;
+}
+
+void print_wp() {
+    if (head == NULL) {
+        printf("no watchpoint now\n");
+        return;
+    }
+    printf("Watchpoint(s):\n");
+    printf("NO.\texpr\t\thitTimes\n");
+    wptemp = head;
+    while (wptemp != NULL) {
+        printf("%d\t%s\t\t%d\n", wptemp->NO, wptemp->e, wptemp->hitNum);
+        wptemp = wptemp->next;
+    }
+}
+
+bool watch_wp() {
+    bool success;
+    int result;
+    if (head == NULL)
+        return true;  // don't stop
+    
+    wptemp = head;
+    while (wptemp != NULL) {
+        result = expr(wptemp->e, &success);  // already detected in new_wp(), success is true
+        if (result != wptemp->oldValue) {
+            wptemp->hitNum += 1;
+            printf("Hardware watchpoint %d: %s\n", wptemp->NO, wptemp->e);
+            printf("Old value:%d\nNew value:%d\n\n", wptemp->oldValue, result);
+            wptemp->oldValue = result;
+            return false;  // stop executing
+        }
+        wptemp = wptemp->next;
+    }
+    return true;  // nothing changed, don't stop
 }
