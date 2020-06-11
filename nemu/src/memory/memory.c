@@ -85,6 +85,7 @@ uint32_t vaddr_read(vaddr_t addr,int len){
     int num1=0x1000-OFF(addr);
     int num2=len-num1;
     //分页
+    printf("转换addr=0x%x \n",addr);
     paddr_t paddr1=page_translate(addr,false);
     paddr_t paddr2=page_translate(addr+num1,false);
     printf("转换addr=0x%x sucess\n",addr);
@@ -96,6 +97,7 @@ uint32_t vaddr_read(vaddr_t addr,int len){
   }
   else
   {
+    printf("转换addr=0x%x \n",addr);
     paddr_t paddr=page_translate(addr,false);
     printf("转换addr=0x%x sucess\n",addr);
     return paddr_read(paddr,len);
@@ -110,6 +112,7 @@ void vaddr_write(vaddr_t addr,int len,uint32_t data){
     int num1=0x1000-OFF(addr);
     int num2=len-num1;
     //分页
+    printf("转换addr=0x%x \n",addr);
     paddr_t paddr1=page_translate(addr,false);
     paddr_t paddr2=page_translate(addr+num1,false);
     printf("转换addr=0x%x sucess\n",addr);
@@ -122,6 +125,7 @@ void vaddr_write(vaddr_t addr,int len,uint32_t data){
   }
   else
   {
+    printf("转换addr=0x%x \n",addr);
     paddr_t paddr=page_translate(addr,true);
     printf("转换addr=0x%x sucess\n",addr);
     return paddr_write(paddr,len,data);
