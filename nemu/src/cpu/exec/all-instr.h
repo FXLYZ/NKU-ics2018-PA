@@ -63,3 +63,7 @@ make_EHelper(popa);
 make_EHelper(pusha);
 make_EHelper(iret);
 make_EHelper(cwtl);
+
+//cr0,cr3
+make_EHelper(mov_store_cr);
+

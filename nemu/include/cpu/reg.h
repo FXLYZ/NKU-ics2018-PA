@@ -52,6 +52,10 @@ typedef struct {
   } idtr;
   // CS
   rtlreg_t cs;
+  //cr0
+  uint32_t CR0;
+  //cr3
+  uint32_t CR3;
 } CPU_state;
 
 extern CPU_state cpu;

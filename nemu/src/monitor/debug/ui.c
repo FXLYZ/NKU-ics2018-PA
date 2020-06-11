@@ -74,6 +74,7 @@ static int cmd_info(char *args) {
             printf("%s 0x%x\n", regsw[i], reg_w(i));
         for (i = 0; i < 8; i++) 
             printf("%s 0x%x\n", regsb[i], reg_b(i));
+        printf("cr0=0x%x,cr3=0x%x\n",cpu.CR0,cpu.CR3);
         return 0;
     }
     if (s == 'w') {
