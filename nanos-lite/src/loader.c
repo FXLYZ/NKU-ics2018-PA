@@ -30,7 +30,7 @@ uintptr_t loader(_Protect *as, const char *filename) {
     fs_read(fd,pa,PGSIZE);
     va+=PGSIZE;
   }
-
+  Log("loader加载完成");
   //fs_read(fd, DEFAULT_ENTRY, fs_filesz(fd));
   fs_close(fd);
   return (uintptr_t)DEFAULT_ENTRY;
