@@ -60,8 +60,11 @@ extern void ramdisk_write(void* buf, off_t offset, size_t len);
 
 int fs_open(const char* filename, int flags, int mode) {
     for (int i = 0; i < NR_FILES; i++) {
-        if (strcmp(filename, file_table[i].name) == 0)
+        if (strcmp(filename, file_table[i].name) == 0) {
+            Log("success open %d:%s", i, filename);
+            set_open_offset(i, 0);
             return i;
+        }
     }
     panic("filename not exist in file_table\n");
     return -1;

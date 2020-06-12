@@ -11,7 +11,8 @@ void sys_exit(int a) {
 }
 
 int sys_brk(int addr) {
-    return 0;
+    extern int mm_brk(uint32_t new_brk);
+    return mm_brk(addr);
 }
 
 int sys_write(int fd, void* buf, size_t len) {
